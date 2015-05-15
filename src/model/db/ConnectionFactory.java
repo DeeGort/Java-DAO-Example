@@ -20,7 +20,6 @@ public class ConnectionFactory {
 		}
 	}
 	
-	// Ctrl shift o
 	private Connection createConnection() {
 		Connection connection = null;
 		try {

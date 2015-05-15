@@ -1,25 +1,21 @@
 package view;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 
 import model.Customer;
 import model.db.Account;
 import controller.db.CustomerDBDAO;
-
-import javax.swing.JScrollPane;
+import controller.xml.CustomerXMLDAO;
 
 
 
@@ -28,7 +24,8 @@ public class Window extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField idBox3;
-	private JTable table;
+	private JTable tableSQL;
+	private JTable tableXML;
 	private Account account;
 	private JTextField firstNameBox;
 	private JTextField lastNameBox;
@@ -44,7 +41,7 @@ public class Window extends JFrame {
 		
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 652, 314);
+		setBounds(100, 100, 652, 418);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -70,30 +67,18 @@ public class Window extends JFrame {
 		deletePanel.add(lblId_1);
 		
 		JPanel panel_3 = new JPanel();
-		panel_3.setBorder(BorderFactory.createTitledBorder("Table"));
-		panel_3.setBounds(260, 11, 376, 267);
+		panel_3.setBorder(BorderFactory.createTitledBorder("SQL Table"));
+		panel_3.setBounds(260, 11, 376, 170);
 		contentPane.add(panel_3);
 		panel_3.setLayout(null);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 21, 356, 201);
+		scrollPane.setBounds(10, 21, 356, 137);
 		panel_3.add(scrollPane);
 		
 		
-		table = new JTable(new DefaultTableModel(new Object[][]{}, new Object[]{"ID", "FIRST_NAME", "LAST_NAME", "ADDRESS"}));
-		scrollPane.setViewportView(table);
-		
-		JButton createTableButton = new JButton("Create sample table");
-		createTableButton.setBounds(10, 233, 129, 23);
-		panel_3.add(createTableButton);
-		
-		JButton dropButton = new JButton("Drop table");
-		dropButton.setBounds(149, 233, 111, 23);
-		panel_3.add(dropButton);
-		
-		JButton refreshButton = new JButton("Refresh");
-		refreshButton.setBounds(270, 233, 96, 23);
-		panel_3.add(refreshButton);
+		tableSQL = new JTable(new DefaultTableModel(new Object[][]{}, new Object[]{"ID", "FIRST_NAME", "LAST_NAME", "ADDRESS"}));
+		scrollPane.setViewportView(tableSQL);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(null);
@@ -141,34 +126,73 @@ public class Window extends JFrame {
 		idBox.setBounds(112, 27, 118, 20);
 		panel.add(idBox);
 		
-		recordButton.addActionListener(e -> {
-			CustomerDBDAO dbdao = new CustomerDBDAO(account);
-			Customer customer = new Customer(idBox.getText(),
-											firstNameBox.getText(),
-											lastNameBox.getText(),
-											addressBox.getText());
-			dbdao.recordCustomer(customer);
-			listCustomers();
-		});
+		JButton createTableButton = new JButton("Create new");
+		createTableButton.setBounds(10, 288, 240, 23);
+		contentPane.add(createTableButton);
 		
-		deleteButton.addActionListener(e -> {
-			CustomerDBDAO dbdao = new CustomerDBDAO(account);
-			dbdao.deleteCustomer(idBox3.getText());
-			listCustomers();
-		});
+		JButton dropButton = new JButton("Drop");
+		dropButton.setBounds(10, 322, 240, 23);
+		contentPane.add(dropButton);
 		
-		createTableButton.addActionListener(e -> {
-			CustomerDBDAO dbdao = new CustomerDBDAO(account);
-			dbdao.createTable();
+		JButton refreshButton = new JButton("Refresh");
+		refreshButton.setBounds(10, 356, 240, 23);
+		contentPane.add(refreshButton);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setLayout(null);
+		panel_1.setBorder(BorderFactory.createTitledBorder("XML"));
+		panel_1.setBounds(260, 185, 376, 170);
+		contentPane.add(panel_1);
+		
+		JScrollPane scrollPane1 = new JScrollPane();
+		scrollPane1.setBounds(10, 21, 356, 137);
+		panel_1.add(scrollPane1);
+		
+		tableXML = new JTable(new DefaultTableModel(new Object[][]{}, new Object[]{"ID", "FIRST_NAME", "LAST_NAME", "ADDRESS"}));
+		scrollPane1.setViewportView(tableXML);
+		
+		refreshButton.addActionListener(e -> {
+			refreshSQLCustomers();
+			refreshXMLCustomers();
 		});
 		
 		dropButton.addActionListener(e -> {
 			CustomerDBDAO dbdao = new CustomerDBDAO(account);
 			dbdao.dropTable();
+			CustomerXMLDAO xmldao = new CustomerXMLDAO();
+			xmldao.dropXML();
 		});
 		
-		refreshButton.addActionListener(e -> {
-			listCustomers();
+		createTableButton.addActionListener(e -> {
+			CustomerDBDAO dbdao = new CustomerDBDAO(account);
+			dbdao.createTable();
+			CustomerXMLDAO xmldao = new CustomerXMLDAO();
+			xmldao.createXML();
+		});
+		
+		recordButton.addActionListener(e -> {
+			Customer customer = new Customer(idBox.getText(),
+					firstNameBox.getText(),
+					lastNameBox.getText(),
+					addressBox.getText());
+			CustomerDBDAO dbdao = new CustomerDBDAO(account);
+			dbdao.recordCustomer(customer);
+			
+			CustomerXMLDAO xmldao = new CustomerXMLDAO();
+			xmldao.recordCustomer(customer);
+			
+			refreshSQLCustomers();
+			refreshXMLCustomers();
+		});
+		
+		deleteButton.addActionListener(e -> {
+			CustomerDBDAO dbdao = new CustomerDBDAO(account);
+			dbdao.deleteCustomer(idBox3.getText());
+			CustomerXMLDAO xmldao = new CustomerXMLDAO();
+			xmldao.deleteCustomer(idBox3.getText());
+			
+			refreshSQLCustomers();
+			refreshXMLCustomers();
 		});
 	}
 
@@ -176,13 +200,22 @@ public class Window extends JFrame {
 		this.account = account;
 	}
 	
-	public void listCustomers() {
+	public void refreshSQLCustomers() {
 		CustomerDBDAO dbdao = new CustomerDBDAO(account);
 		
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		DefaultTableModel model = (DefaultTableModel) tableSQL.getModel();
 		model.setRowCount(0);
 		for (Customer c : dbdao.getCustomers()) {
-			
+			model.addRow(new Object[]{c.getId(), c.getFirstName(), c.getLastName(), c.getAddress()});
+		}
+	}
+	
+	public void refreshXMLCustomers() {
+		CustomerXMLDAO dbdao = new CustomerXMLDAO();
+		
+		DefaultTableModel model = (DefaultTableModel) tableXML.getModel();
+		model.setRowCount(0);
+		for (Customer c : dbdao.getCustomers()) {
 			model.addRow(new Object[]{c.getId(), c.getFirstName(), c.getLastName(), c.getAddress()});
 		}
 	}

@@ -10,8 +10,9 @@ tmp/
 local.properties
 .settings/
 .loadpath
-.jar
-.zip
+*.xml
+*.jar
+*.zip
 
 # Eclipse Core
 .project
