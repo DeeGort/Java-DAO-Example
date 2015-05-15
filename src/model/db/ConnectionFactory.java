@@ -30,9 +30,9 @@ public class ConnectionFactory {
 		return connection;
 	}
 	
-	public static Connection newConnectio(Account accout) {
-		USER = accout.getUsername();
-		PASS = accout.getPassword();
+	public static Connection newConnectio(Account account) {
+		USER = account.getUsername();
+		PASS = account.getPassword();
 		return factory.createConnection();
 	}
 }
