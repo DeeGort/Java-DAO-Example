@@ -24,21 +24,20 @@ public class CustomerDBDAO implements CustomerDAO {
 
 	@Override
 	public void recordCustomer(Customer cust) {
-		try {
-			Connection c = ConnectionFactory.newConnectio(accout);
 		
-			String sql = "INSERT INTO CUSTOMERS_SAMPLE (ID, FIRST_NAME, LAST_NAME, ADDRESS)" +
-							 "VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO CUSTOMERS_SAMPLE (ID, FIRST_NAME, LAST_NAME, ADDRESS)" +
+				 	 "VALUES (?, ?, ?, ?)";
+		
+		try (Connection c = ConnectionFactory.newConnectio(accout);
+			 PreparedStatement pstm = c.prepareStatement(sql)
+		 ) {
 			
-			PreparedStatement pstm = c.prepareStatement(sql);
 			pstm.setString(1, cust.getId());
 			pstm.setString(2, cust.getFirstName());
 			pstm.setString(3, cust.getLastName());
 			pstm.setString(4, cust.getAddress());
 			pstm.executeUpdate();
 		
-			pstm.close();
-			c.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -46,16 +45,16 @@ public class CustomerDBDAO implements CustomerDAO {
 
 	@Override
 	public void deleteCustomer(String id) {
-		try {
-			Connection c = ConnectionFactory.newConnectio(accout);
 		
-			String sql = "DELETE FROM CUSTOMERS_SAMPLE WHERE CUSTOMERS_SAMPLE.ID = ?";
-			PreparedStatement pstm = c.prepareStatement(sql);
+		String sql = "DELETE FROM CUSTOMERS_SAMPLE WHERE CUSTOMERS_SAMPLE.ID = ?";
+		
+		try (Connection c = ConnectionFactory.newConnectio(accout);
+			 PreparedStatement pstm = c.prepareStatement(sql);
+		) {
+			
 			pstm.setString(1, id);
 			pstm.executeUpdate();
-		
-			pstm.close();
-			c.close();
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -64,14 +63,13 @@ public class CustomerDBDAO implements CustomerDAO {
 	@Override
 	public List<Customer> getCustomers() {
 		List<Customer> customers = new ArrayList<>();
-		try {
-			Connection c = ConnectionFactory.newConnectio(accout);
-			Statement stm = c.createStatement();
-			
-			String sql = "SELECT * FROM CUSTOMERS_SAMPLE";
-			
-			ResultSet rs = stm.executeQuery(sql);
-			
+		
+		String sql = "SELECT * FROM CUSTOMERS_SAMPLE";
+		
+		try (Connection c = ConnectionFactory.newConnectio(accout);
+			 Statement stm = c.createStatement();
+			 ResultSet rs = stm.executeQuery(sql);
+		) {
 			while(rs.next()) {
 				Customer currentCustomer = new Customer(
 						rs.getString(1),
@@ -81,9 +79,6 @@ public class CustomerDBDAO implements CustomerDAO {
 						);
 				customers.add(currentCustomer);
 			}
-		
-			stm.close();
-			c.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -91,43 +86,41 @@ public class CustomerDBDAO implements CustomerDAO {
 	}
 	
 	public void createTable() {
-		try {
-			Connection c = ConnectionFactory.newConnectio(accout);
-			Statement stm = c.createStatement();
 		
-			String sql = "CREATE TABLE CUSTOMERS_SAMPLE " +
-						"(" +
-						"  ID VARCHAR2(20) NOT NULL" +
-						", FIRST_NAME VARCHAR2(20) " +
-						", LAST_NAME VARCHAR2(20) " +
-						", ADDRESS VARCHAR2(120) " +
-						", CONSTRAINT CUSTOMERS_SAMPLE_PK PRIMARY KEY " +
-						"  (" +
-						"    ID " +
-						"  )" +
-						"  ENABLE " +
-						")";
+		String sql = "CREATE TABLE CUSTOMERS_SAMPLE " +
+				"(" +
+				"  ID VARCHAR2(20) NOT NULL" +
+				", FIRST_NAME VARCHAR2(20) " +
+				", LAST_NAME VARCHAR2(20) " +
+				", ADDRESS VARCHAR2(120) " +
+				", CONSTRAINT CUSTOMERS_SAMPLE_PK PRIMARY KEY " +
+				"  (" +
+				"    ID " +
+				"  )" +
+				"  ENABLE " +
+				")";
+	
+		
+		try (Connection c = ConnectionFactory.newConnectio(accout);
+			 Statement stm = c.createStatement();
+		) {
 			
 			stm.execute(sql);
 			
-			stm.close();
-			c.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void dropTable() {
-		try {
-			Connection c = ConnectionFactory.newConnectio(accout);
-			Statement stm = c.createStatement();
 		
-			String sql = "DROP TABLE CUSTOMERS_SAMPLE";
+		String sql = "DROP TABLE CUSTOMERS_SAMPLE";
+		try (Connection c = ConnectionFactory.newConnectio(accout);
+			 Statement stm = c.createStatement();
+			) {
 			
 			stm.execute(sql);
 			
-			stm.close();
-			c.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
