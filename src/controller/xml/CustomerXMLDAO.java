@@ -106,8 +106,7 @@ public class CustomerXMLDAO implements CustomerDAO {
 	}
 	
 	public void dropXML() {
-    	File file = new File(URL);
-    	file.delete();
+    	new File(URL).delete();
 	}
 	
 	private void writeXML(Document d) {
